@@ -2,8 +2,10 @@
 #include <Adafruit_NeoPixel.h>
 
 
-Stripper::Stripper(Adafruit_NeoPixel *s){
+Stripper::Stripper(Adafruit_NeoPixel *s, uint16_t r, uint16_t c){
   strip = s;
+  rows = r;
+  cols = c;
   triggerTime = 0L;
   brightnessTriggerTime = 0L;
   currentColor = 0;
@@ -30,27 +32,40 @@ void Stripper::reset(){
   loop = false;
 }
 
-void Stripper::setPixel(uint16_t pixelNumber, byte *rgb) {
+void Stripper::setPixel(uint16_t pixelNumber, byte *rgb, bool draw) {
   reset();
   uint32_t color = strip->Color(rgb[0],rgb[1],rgb[2]);
   strip->setPixelColor(pixelNumber-1, color);
-  strip->show();
+  if (draw) strip->show();
+}
+
+void Stripper::setPixel(uint16_t c, uint16_t r, byte *rgb, bool draw){
+  uint16_t x = cols - c + 1;
+  uint16_t y = rows - r + 1;
+  Serial.println(x);
+  Serial.println(y);
+  uint16_t pixelNum = (y*cols) - (x-1);
+  uint16_t pn = (pixelNum % strip->numPixels());
+  Serial.println(pn);
+  setPixel(pn, rgb, draw);
 }
 
 void Stripper::setColor(byte *rgb){
   reset();
   uint16_t i;
-  uint32_t color = strip->Color(rgb[0],rgb[1],rgb[2]);
+  setCurrentColor(rgb);
   for (i=0;i<strip->numPixels();i++){
-    strip->setPixelColor(i,color);
+    strip->setPixelColor(i,getCurrentColor());
   }
   strip->show();
 }
 
 void Stripper::off(void){
   reset();
-  byte rgb[3] = {0,0,0};
-  setColor(rgb);
+  for(uint16_t i=0;i<strip->numPixels();i++){
+    strip->setPixelColor(i,0);
+  }
+  strip->show();
 }
 
 void Stripper::colorWipe(byte *rgb, uint16_t wait) {

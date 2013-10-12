@@ -22,10 +22,11 @@ typedef enum StripperCommand {
 
 class Stripper {
   public:
-    Stripper(Adafruit_NeoPixel *strip);
+    Stripper(Adafruit_NeoPixel *strip, uint16_t rows, uint16_t cols);
 
   void
-    setPixel(uint16_t pixelNumber, byte *c),
+    setPixel(uint16_t pixelNumber, byte *c, bool draw=true),
+    setPixel(uint16_t x, uint16_t y, byte *c, bool draw=true),  
     setColor(byte *c),
     colorWipe(byte *c, uint16_t wait),
     rainbow(uint16_t wait, bool loop = true),
@@ -72,7 +73,8 @@ class Stripper {
     uint16_t
       currentPixel,
       currentWait,
-      currentStep;
+      currentStep,
+      rows, cols;
     uint8_t
       currentBrightness,
       brightnessWait,
